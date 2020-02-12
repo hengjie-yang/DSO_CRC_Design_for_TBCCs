@@ -1,4 +1,4 @@
-function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generator, d_tilde, V)
+function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generator, d_tilde, V, MaxLen)
 
 % 
 %   The collection algorithm collects all irreducible error events (IEEs)
@@ -14,12 +14,13 @@ function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generato
 %
 %   Outputs:
 %       1) IEE is a structure with the following fields:
-%           (1) BasicInfo: a 2^v*1 vector that stores the aggregate of IEEs
-%           starting at each state
+%           (1) spectrum: a 2^v*1 vector that stores the aggregate of IEEs
+%           starting at each state specified by V.
 %           (2) list: a 2^v*1 cell, with the i-th cell representing the
 %               list of input sequence whose IEE is of distance 'i'.
 %           (3) lengths: a 2^v*1 cell of vectors, with the i-th vector
-%               representing the list of lengths of the i-th matrix in IEE_list
+%               representing the list of lengths of the i-th matrix in
+%               IEE_list.
 %
 %
 
@@ -31,10 +32,13 @@ function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generato
 trellis = poly2trellis(constraint_length, code_generator);
 NumStates = trellis.numStates;
 NumInputs = trellis.numInputSymbols; % for rate-1/n, NumInputs = 2
-MaxLen = 12;
 
 if nargin <= 3
     V = 1:NumStates; % state indices start from 1
+end
+
+if nargin <=4
+    MaxLen = 100;
 end
 
 
@@ -58,9 +62,13 @@ end
 % Viterbi search at each starting state
 for iter = 1:NumStates
     start_state = V(iter); % determine the start state
+    disp(['Current progress: iter = ', num2str(iter), ' V(iter) = ',num2str(start_state)]);
     Column{1} = cell(NumStates, 1);
     Column{2} = cell(NumStates, 1);
     for depth = 0:MaxLen    % start a Viterbi search
+        disp(['Current progress: iter = ', num2str(iter),...
+            ' V(iter) = ',num2str(start_state),...
+            ' Depth = ', num2str(depth)]);
         Column{mod(depth+1,2)+1}=cell(NumStates,1);
         if depth == 0
             for input = 1:NumInputs
@@ -119,10 +127,10 @@ for iter = 1:NumStates
 end
 
 % Aggregate information
-IEE.BasicInfo = zeros(NumStates,1);
+IEE.spectrum = zeros(NumStates,1);
 for iter = 1:NumStates
     for dist = 1:d_tilde
-        IEE.BasicInfo(iter) = IEE.BasicInfo(iter) + length(IEE_lengths{iter}{dist});
+        IEE.spectrum(iter) = IEE.spectrum(iter) + length(IEE_lengths{iter}{dist});
     end
 end
 
