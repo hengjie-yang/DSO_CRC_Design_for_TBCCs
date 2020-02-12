@@ -1,4 +1,4 @@
-function [IEE_list, IEE_lengths] = Collect_Irreducible_Error_Events(constraint_length, code_generator, d_tilde, V)
+function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generator, d_tilde, V)
 
 % 
 %   The collection algorithm collects all irreducible error events (IEEs)
@@ -13,10 +13,13 @@ function [IEE_list, IEE_lengths] = Collect_Irreducible_Error_Events(constraint_l
 %       the natural ordering. The index starts from 1.
 %
 %   Outputs:
-%       1) IEE_list: a 2^v*1 cell, with the i-th cell representing the
-%       list of input sequence whose IEE is of distance 'i'.
-%       2) IEE_lengths: a 2^v*1 cell of vectors, with the i-th vector
-%       representing the list of lengths of the i-th matrix in IEE_list
+%       1) IEE is a structure with the following fields:
+%           (1) BasicInfo: a 2^v*1 vector that stores the aggregate of IEEs
+%           starting at each state
+%           (2) list: a 2^v*1 cell, with the i-th cell representing the
+%               list of input sequence whose IEE is of distance 'i'.
+%           (3) lengths: a 2^v*1 cell of vectors, with the i-th vector
+%               representing the list of lengths of the i-th matrix in IEE_list
 %
 %
 
@@ -33,13 +36,14 @@ MaxLen = 12;
 if nargin <= 3
     V = 1:NumStates; % state indices start from 1
 end
-IEE_list = cell(NumStates, 1);
-IEE_lengths = cell(NumStates, 1);
+
 
 
 
 %Initialize some important parameters
-% State_Init = fliplr(dec2bin(0:2^(NumStates)-1) - '0');
+IEE_list = cell(NumStates, 1);
+IEE_lengths = cell(NumStates, 1);
+
 inv_V = zeros(1, size(V,2));
 for i = 1: NumStates
     inv_V(V(i)) = i;
@@ -114,8 +118,20 @@ for iter = 1:NumStates
     end
 end
 
+% Aggregate information
+IEE.BasicInfo = zeros(NumStates,1);
+for iter = 1:NumStates
+    for dist = 1:d_tilde
+        IEE.BasicInfo(iter) = IEE.BasicInfo(iter) + length(IEE_lengths{iter}{dist});
+    end
+end
+
+IEE.list = IEE_list;
+IEE.lengths = IEE_lengths;
+    
+
 save(['IEEs_',num2str(constraint_length),'_',num2str(code_generator),'_',num2str(d_tilde),'.mat'],...
-    'IEE_list','IEE_lengths','-v7.3');
+    'IEE','-v7.3');
 
 
     
