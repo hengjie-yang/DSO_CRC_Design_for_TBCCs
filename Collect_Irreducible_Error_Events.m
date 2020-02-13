@@ -19,10 +19,10 @@ function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generato
 %           (1) spectrum: a 2^v*1 vector that stores the aggregate of IEEs
 %           starting at each state specified by V.
 %           (2) list: a 2^v*1 cell, with the i-th cell representing the
-%               list of input sequence starting at state V(i).
+%               list of input sequence starting at state i.
 %           (3) lengths: a 2^v*1 cell of vectors, with the i-th vector
 %               representing the list of lengths associated with the IEEs
-%               starting at state V(i).
+%               starting at state i.
 %
 %
 
@@ -90,15 +90,15 @@ for iter = 1:NumStates
                     if cur_state == start_state % meet the error event condition, stop extending
                         for dist = 1:d_tilde
                             if ~isempty(Column{mod(depth,2)+1}{cur_state}{dist})
-                                [row_dim, col_dim] = size(IEE_list{iter}{dist});
+                                [row_dim, col_dim] = size(IEE_list{start_state}{dist});
                                 [row, col] = size(Column{mod(depth,2)+1}{cur_state}{dist});
                                 if col_dim < col
-                                    IEE_list{iter}{dist} = [IEE_list{iter}{dist}, Inf(row_dim, col-col_dim)];
+                                    IEE_list{start_state}{dist} = [IEE_list{start_state}{dist}, Inf(row_dim, col-col_dim)];
                                 else
                                     Column{mod(depth,2)+1}{cur_state}{dist} = [Column{mod(depth,2)+1}{cur_state}{dist}, Inf(row, col_dim-col)];
                                 end
-                                IEE_list{iter}{dist} = [IEE_list{iter}{dist}; Column{mod(depth,2)+1}{cur_state}{dist}];
-                                IEE_lengths{iter}{dist} = [IEE_lengths{iter}{dist}; depth*ones(row, 1)];
+                                IEE_list{start_state}{dist} = [IEE_list{start_state}{dist}; Column{mod(depth,2)+1}{cur_state}{dist}];
+                                IEE_lengths{start_state}{dist} = [IEE_lengths{start_state}{dist}; depth*ones(row, 1)];
                             end
                         end
                     else
@@ -132,8 +132,9 @@ end
 IEE.ordering = V;
 IEE.spectrum = zeros(NumStates,1);
 for iter = 1:NumStates
+    start_state = V(iter);
     for dist = 1:d_tilde
-        IEE.spectrum(iter) = IEE.spectrum(iter) + length(IEE_lengths{iter}{dist});
+        IEE.spectrum(start_state) = IEE.spectrum(start_state) + length(IEE_lengths{start_state}{dist});
     end
 end
 
