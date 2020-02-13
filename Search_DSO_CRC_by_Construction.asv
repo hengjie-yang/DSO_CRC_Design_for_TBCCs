@@ -122,8 +122,8 @@ for iter = 1:d_tilde
         h_self = ComputeHash(cur_seq, HashNumber);
         HashTable(h_self) = 1; % mark the original sequence
         Extended_seq = [cur_seq, cur_seq];
-        for shift = 1:N-1
-            cyclic_seq = Extended_seq(1+shift:N+shift);
+        for shift = 1:N
+            cyclic_seq = Extended_seq(1+shit:N+shift);
             h_cyclic = ComputeHash(cyclic_seq, HashNumber);
             if h_cyclic == h_self % termination condition for cyclic shift
                 break
@@ -154,7 +154,7 @@ for j = 1:N
     base = mod(base*2, HashNumber);
 end
 
-h = h + 1; % move the starting index to 1
+h
 
 end
 
