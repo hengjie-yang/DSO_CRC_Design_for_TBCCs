@@ -40,7 +40,7 @@ if nargin <= 3
 end
 
 if nargin <=4
-    MaxLen = 100;
+    MaxLen = 12;
 end
 
 

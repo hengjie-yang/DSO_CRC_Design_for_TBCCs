@@ -1,4 +1,4 @@
-function crc_gen_poly = Search_DSO_CRC_by_Construction(code_generator, m, d_tilde, N)
+function [crc_gen_poly, Valid_TBPs] = Search_DSO_CRC_by_Construction(code_generator, m, d_tilde, N)
 
 %
 %   The function searches the distance-spectrum-optimal (DSO) CRC generator
@@ -16,6 +16,8 @@ function crc_gen_poly = Search_DSO_CRC_by_Construction(code_generator, m, d_tild
 %   Notes:
 %       1) Must run "Collect_Irreducible_Error_Events" first if IEEEs are
 %       not generated before
+%       2) The distance index equals true distance + 1, whereas the length
+%       index equals true length.
 %       
 
 %   Copyright 2020 Hengjie Yang
@@ -38,9 +40,7 @@ load(file_name, 'IEE');
 V = IEE.ordering;
 NumStates = length(V);
 Temp_TBPs = cell(d_tilde, 1); % used to find TBPs at each state
-for dist = 1:d_tilde
-    Temp_TBPs{dist} = cell(N, 1);
-end
+
 
 TBPs = cell(d_tilde, 1); % official list
 for dist = 1:d_tilde
@@ -49,29 +49,72 @@ end
 
 
 % Warning: the true distance = dist - 1 because we manually add 1
-for dist = 1:d_tilde
-    for iter = 1:NumStates % find TBPs from every possible start state
-        start_state = V(iter);
-        List = IEE.list{start_state};
-        Lengths = IEE.lengths{start_state};
-        for dd = 1:d_tilde
-            for ii = 1:size(List{dd},1)
-                len = Lengths{dd}(ii);
-                if dist + dd <=d_tilde
-                    for st_len = 1:N-len
-                        [row, ~] = size(Temp_TBPs{dist+dd}{st_len+len});
-                        Temp = repmat(List{dd}(ii,:), row, 1);
-                        Temp_TBPs{dist+dd}{st_len+len} =[Temp_TBPs{dist+dd}{st_len+len}, Temp];
+for iter = 1:NumStates % find TBPs from every possible start state
+    for dist = 1:d_tilde
+        Temp_TBPs{dist} = cell(N, 1);
+    end
+        
+    start_state = V(iter);
+    List = IEE.list{start_state};
+    Lengths = IEE.lengths{start_state};
+    
+    % try each possible IEE as starting point for dynamic programming
+    for ds=1:d_tilde
+        if~isempty(List{ds})
+            for is = 1:size(List{ds},1)
+                len = Lengths{ds}(is);
+                Temp_TBPs{ds}{len} = List{ds}(is,1:len);
+    
+                % dynamic programming
+                for dd = 1:d_tilde
+                    if ~isempty(List{dd})
+                        for ii = 1:size(List{dd},1)
+                            len = Lengths{dd}(ii);
+                            weight = dd-1;
+                            for dist=1:d_tilde-weight % fake distance
+                                for st_len = 1:N-len % true start length                        
+                                    if ~isempty(Temp_TBPs{dist}{st_len})
+                                        [row,~] = size(Temp_TBPs{dist}{st_len});
+                                        Added_Bits = repmat(List{dd}(ii, 1:len),row,1);
+                                        New_TBPs = [Temp_TBPs{dist}{st_len}, Added_Bits];
+                                        Temp_TBPs{dist+weight}{st_len+len}=[Temp_TBPs{dist+weight}{st_len+len};New_TBPs]; 
+                                    end                      
+                                end
+                            end
+                        end
                     end
+                end
+                
+                % After building, we need to merge newly found TBPs into existing
+                % TBPs
+                for dist=1:d_tilde
+                    for len=1:N
+                        if ~isempty(Temp_TBPs{dist}{len})
+                            TBPs{dist}{len} = [TBPs{dist}{len}; Temp_TBPs{dist}{len}];
+                        end
+                    end
+                end
+            
+                % Clear data and try a different starting point
+                for dist = 1:d_tilde
+                    Temp_TBPs{dist} = cell(N, 1);
                 end
             end
         end
-        
-        % After building, we need to merge newly found TBPs into existing
-        % TBPs 
-        
     end
 end
+
+Valid_TBPs = cell(d_tilde,1); % stores TBPs of length equal to N
+for dist=1:d_tilde
+    if ~isempty(TBPs{dist}{N})
+        Valid_TBPs{dist} = TBPs{dist}{N};
+    end
+end
+
+
+
+
+        
         
     
     
