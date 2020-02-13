@@ -14,13 +14,15 @@ function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generato
 %
 %   Outputs:
 %       1) IEE is a structure with the following fields:
+%           (1) ordering: a 1*2*v vector indicating the ordering of start
+%           states.
 %           (1) spectrum: a 2^v*1 vector that stores the aggregate of IEEs
 %           starting at each state specified by V.
 %           (2) list: a 2^v*1 cell, with the i-th cell representing the
-%               list of input sequence whose IEE is of distance 'i'.
+%               list of input sequence starting at state V(i).
 %           (3) lengths: a 2^v*1 cell of vectors, with the i-th vector
-%               representing the list of lengths of the i-th matrix in
-%               IEE_list.
+%               representing the list of lengths associated with the IEEs
+%               starting at state V(i).
 %
 %
 
@@ -127,6 +129,7 @@ for iter = 1:NumStates
 end
 
 % Aggregate information
+IEE.ordering = V;
 IEE.spectrum = zeros(NumStates,1);
 for iter = 1:NumStates
     for dist = 1:d_tilde
@@ -136,9 +139,14 @@ end
 
 IEE.list = IEE_list;
 IEE.lengths = IEE_lengths;
-    
 
-save(['IEEs_',num2str(constraint_length),'_',num2str(code_generator),'_',num2str(d_tilde),'.mat'],...
+
+code_string = '';
+for iter = 1:size(code_generator,2)
+    code_string = [code_string, num2str(code_generator(iter)), '_'];
+end
+
+save(['IEEs_CC_',code_string,'dtilde_',num2str(d_tilde),'.mat'],...
     'IEE','-v7.3');
 
 
