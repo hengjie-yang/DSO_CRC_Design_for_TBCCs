@@ -1,4 +1,4 @@
-function [crc_gen_poly, Valid_TBPs] = Search_DSO_CRC_by_Construction(code_generator, m, d_tilde, N)
+function [HashTable, Valid_TBPs] = Search_DSO_CRC_by_Construction(code_generator, m, d_tilde, N)
 
 %
 %   The function searches the distance-spectrum-optimal (DSO) CRC generator
@@ -60,44 +60,46 @@ for iter = 1:NumStates % find TBPs from every possible start state
     
     % try each possible IEE as starting point for dynamic programming
     for ds=1:d_tilde
-        if~isempty(List{ds})
+        if ds<=d_tilde && ~isempty(List{ds})
             for is = 1:size(List{ds},1)
                 len = Lengths{ds}(is);
-                Temp_TBPs{ds}{len} = List{ds}(is,1:len);
+                if len<=N
+                    Temp_TBPs{ds}{len} = List{ds}(is,1:len);
     
-                % dynamic programming
-                for dd = 1:d_tilde
-                    if ~isempty(List{dd})
-                        for ii = 1:size(List{dd},1)
-                            len = Lengths{dd}(ii);
-                            weight = dd-1;
-                            for dist=1:d_tilde-weight % fake distance
-                                for st_len = 1:N-len % true start length                        
-                                    if ~isempty(Temp_TBPs{dist}{st_len})
-                                        [row,~] = size(Temp_TBPs{dist}{st_len});
-                                        Added_Bits = repmat(List{dd}(ii, 1:len),row,1);
-                                        New_TBPs = [Temp_TBPs{dist}{st_len}, Added_Bits];
-                                        Temp_TBPs{dist+weight}{st_len+len}=[Temp_TBPs{dist+weight}{st_len+len};New_TBPs]; 
-                                    end                      
+                    % dynamic programming
+                    for dd = 1:d_tilde
+                        if ~isempty(List{dd})
+                            for ii = 1:size(List{dd},1)
+                                len = Lengths{dd}(ii);
+                                weight = dd-1;
+                                for dist=1:d_tilde-weight % fake distance
+                                    for st_len = 1:N-len % true start length                        
+                                        if ~isempty(Temp_TBPs{dist}{st_len})
+                                            [row,~] = size(Temp_TBPs{dist}{st_len});
+                                            Added_Bits = repmat(List{dd}(ii, 1:len),row,1);
+                                            New_TBPs = [Temp_TBPs{dist}{st_len}, Added_Bits];
+                                            Temp_TBPs{dist+weight}{st_len+len}=[Temp_TBPs{dist+weight}{st_len+len};New_TBPs]; 
+                                        end                      
+                                    end
                                 end
                             end
                         end
                     end
-                end
-                
-                % After building, we need to merge newly found TBPs into existing
-                % TBPs
-                for dist=1:d_tilde
-                    for len=1:N
-                        if ~isempty(Temp_TBPs{dist}{len})
-                            TBPs{dist}{len} = [TBPs{dist}{len}; Temp_TBPs{dist}{len}];
+                    
+                    % After building, we need to merge newly found TBPs into existing
+                    % TBPs
+                    for dist=1:d_tilde
+                        for len=1:N
+                            if ~isempty(Temp_TBPs{dist}{len})
+                                TBPs{dist}{len} = [TBPs{dist}{len}; Temp_TBPs{dist}{len}];
+                            end
                         end
                     end
-                end
             
-                % Clear data and try a different starting point
-                for dist = 1:d_tilde
-                    Temp_TBPs{dist} = cell(N, 1);
+                    % Clear data and try a different starting point
+                    for dist = 1:d_tilde
+                        Temp_TBPs{dist} = cell(N, 1);
+                    end
                 end
             end
         end
@@ -112,24 +114,38 @@ for dist=1:d_tilde
 end
 
 
+% Verify if there are repetitive TBPs after building
+HashNumber = 2^N+1; % This is the maximum number of cyclic shift
+HashTable = zeros(HashNumber, 1);
+for iter = 1:d_tilde
+    for ii = 1:size(Valid_TBPs{iter},1)
+        cur_seq = Valid_TBPs{iter}(ii,:);
+        h = ComputeHash(cur_seq, HashNumber);
+        HashTable(h) = HashTable(h) + 1;
+    end
+end
+
+
 % Build all valid TBPs through circular shift
+
+
 for iter = 1:d_tilde
     [row, ~] = size(Valid_TBPs{iter});
-    HashNumber = row*N + 1; % This is the maximum number of cyclic shift
-    HashTable = zeros(HashNumber, 1);
+    % hash table was defined here.
     for ii = 1:row
         cur_seq = Valid_TBPs{iter}(ii,:);
-        h_self = ComputeHash(cur_seq, HashNumber);
-        HashTable(h_self) = 1; % mark the original sequence
-        Extended_seq = [cur_seq, cur_seq];
-        for shift = 1:N
-            cyclic_seq = Extended_seq(1+shit:N+shift);
+%         h_self = ComputeHash(cur_seq, HashNumber);
+%         HashTable(h_self) = 1; % mark the original sequence
+        Extended_seq = [cur_seq, cur_seq]; 
+        for shift = 1:N-1
+            cyclic_seq = Extended_seq(1+shift:N+shift);
             h_cyclic = ComputeHash(cyclic_seq, HashNumber);
             if h_cyclic == h_self % termination condition for cyclic shift
                 break
             end
             if HashTable(h_cyclic) == 0
                 Valid_TBPs{iter} = [Valid_TBPs{iter};cyclic_seq]; % find a new TBP
+                HashTable(h_cyclic) = HashTable(h_cyclic) + 1;
             end
         end
     end
@@ -154,7 +170,7 @@ for j = 1:N
     base = mod(base*2, HashNumber);
 end
 
-h
+h = h + 1; % move the starting index to 1
 
 end
 
