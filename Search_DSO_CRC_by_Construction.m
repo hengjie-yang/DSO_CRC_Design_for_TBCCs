@@ -98,16 +98,16 @@ for dist=1:d_tilde
 end
 
 
-% Verify if there are repetitive TBPs after building
-HashNumber = 2^N+1; % This is the maximum number of cyclic shift
-HashTable = zeros(HashNumber, 1);
-for iter = 1:d_tilde
-    for ii = 1:size(Valid_TBPs{iter},1)
-        cur_seq = Valid_TBPs{iter}(ii,:);
-        h = ComputeHash(cur_seq, HashNumber);
-        HashTable(h) = HashTable(h) + 1;
-    end
-end
+% % Verify if there are repetitive TBPs after building
+% HashNumber = 2^N+1; % This is the maximum number of cyclic shift
+% HashTable = zeros(HashNumber, 1);
+% for iter = 1:d_tilde
+%     for ii = 1:size(Valid_TBPs{iter},1)
+%         cur_seq = Valid_TBPs{iter}(ii,:);
+%         h = ComputeHash(cur_seq, HashNumber);
+%         HashTable(h) = HashTable(h) + 1;
+%     end
+% end
 
 
 % Build all valid TBPs through circular shift
@@ -116,17 +116,26 @@ end
 for iter = 1:d_tilde
     [row, ~] = size(Valid_TBPs{iter});
     % hash table was defined here.
+    
+    HashNumber = 2^N+1;
+    HashTable = zeros(HashNumber, 1);
+    for ii = 1:size(Valid_TBPs{iter},1)
+        cur_seq = Valid_TBPs{iter}(ii,:);
+        h = ComputeHash(cur_seq, HashNumber);
+        HashTable(h) = HashTable(h) + 1;
+    end
+    
     for ii = 1:row
         cur_seq = Valid_TBPs{iter}(ii,:);
-%         h_self = ComputeHash(cur_seq, HashNumber);
+        h_self = ComputeHash(cur_seq, HashNumber);
 %         HashTable(h_self) = 1; % mark the original sequence
         Extended_seq = [cur_seq, cur_seq]; 
-        for shift = 0:N-1
+        for shift = 1:N-1
             cyclic_seq = Extended_seq(1+shift:N+shift);
             h_cyclic = ComputeHash(cyclic_seq, HashNumber);
-%             if h_cyclic == h_self % termination condition for cyclic shift
-%                 break
-%             end
+            if h_cyclic == h_self % termination condition for cyclic shift
+                break
+            end
             if HashTable(h_cyclic) == 0
                 Valid_TBPs{iter} = [Valid_TBPs{iter};cyclic_seq]; % find a new TBP
                 HashTable(h_cyclic) = HashTable(h_cyclic) + 1;
