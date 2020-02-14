@@ -64,7 +64,7 @@ for iter = 1:NumStates % find TBPs from every possible start state
                 for ii = 1:size(List{weight+1},1)
                     l = Lengths{weight+1}(ii);
                     if  weight == dist && l == len
-                        Temp_TBPs{dist+1}{len+1} = List{weight+1}(ii,1:l);
+                        Temp_TBPs{dist+1}{len+1} =[Temp_TBPs{dist+1}{len+1}; List{weight+1}(ii,1:l)];    
                     elseif l < len && ~isempty(Temp_TBPs{dist-weight+1}{len-l+1})
                         [row, ~] = size(Temp_TBPs{dist-weight+1}{len-l+1});
                         Added_bits = repmat(List{weight+1}(ii,1:l), row ,1);
