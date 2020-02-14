@@ -49,6 +49,7 @@ end
 
 
 % Warning: the true distance = dist - 1 because we manually add 1
+disp('Step 1: Reconstruct length-N TBPs using dynamic programming.');
 for iter = 1:NumStates % find TBPs from every possible start state
     for dist = 1:d_tilde
         Temp_TBPs{dist} = cell(N+1, 1);
@@ -112,12 +113,12 @@ end
 
 % Build all valid TBPs through circular shift
 
-
+disp('Step 2: Build remaining TBPs through cyclic shift.');
 for iter = 1:d_tilde
     [row, ~] = size(Valid_TBPs{iter});
     % hash table was defined here.
     
-    HashNumber = 2^N+1;
+    HashNumber = 2*row*(N+1)*N+1; % maximum possible number of TBPs of dist 'iter'
     HashTable = zeros(HashNumber, 1);
     for ii = 1:size(Valid_TBPs{iter},1)
         cur_seq = Valid_TBPs{iter}(ii,:);
