@@ -116,10 +116,11 @@ end
 % Step 2: Build all valid TBPs through circular shift
 disp('Step 2: Build remaining TBPs through cyclic shift.');
 for iter = 1:d_tilde
+    disp(['    Current distance: ',num2str(iter-1)]);
     [row, ~] = size(Valid_TBPs{iter});
     % hash table was defined here.
     
-    HashNumber = 2*row*(N+1)*N+1; % maximum possible number of TBPs of dist 'iter'
+    HashNumber = row*(N+1)*N*ceil(log2(N))+1; % maximum possible number of TBPs of dist 'iter'
     HashTable = zeros(HashNumber, 1);
     for ii = 1:size(Valid_TBPs{iter},1)
         cur_seq = Valid_TBPs{iter}(ii,:);
