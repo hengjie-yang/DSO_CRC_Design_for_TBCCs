@@ -140,11 +140,11 @@ for iter = 1:d_tilde
     % hash table was defined here.
     
     HashNumber = row*(N+1)*N*ceil(log2(N))+1; % maximum possible number of TBPs of dist 'iter'
-    HashTable = zeros(HashNumber, 1);
+    HashTable = false(HashNumber, 1);
     for ii = 1:size(Valid_TBPs{iter},1)
         cur_seq = Valid_TBPs{iter}(ii,:);
         h = ComputeHash(cur_seq, HashNumber);
-        HashTable(h) = HashTable(h) + 1;
+        HashTable(h) = true;
     end
     
     for ii = 1:row
@@ -158,9 +158,9 @@ for iter = 1:d_tilde
             if h_cyclic == h_self % termination condition for cyclic shift
                 break
             end
-            if HashTable(h_cyclic) == 0
+            if HashTable(h_cyclic) == false
                 Valid_TBPs{iter} = [Valid_TBPs{iter};cyclic_seq]; % find a new TBP
-                HashTable(h_cyclic) = HashTable(h_cyclic) + 1;
+                HashTable(h_cyclic) = true;
             end
         end
     end
