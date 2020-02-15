@@ -14,15 +14,17 @@ function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generato
 %
 %   Outputs:
 %       1) IEE is a structure with the following fields:
-%           (1) ordering: a 1*2*v vector indicating the ordering of start
+%           (1) state_ordering: a 1*2*v vector indicating the ordering of start
 %           states.
-%           (1) spectrum: a 2^v*1 vector that stores the aggregate of IEEs
-%           starting at each state specified by V.
+%           (1) state_spectrum: a 2^v*1 vector that stores the aggregate of IEEs
+%                   starting at each state specified by V.
+%           (2) distance_spectrum: a d_tilde*1 vector that stores the
+%                   aggregate of the IEEs with the given distance.
 %           (2) list: a 2^v*1 cell, with the i-th cell representing the
-%               list of input sequence starting at state i.
+%                   list of input sequence starting at state i.
 %           (3) lengths: a 2^v*1 cell of vectors, with the i-th vector
-%               representing the list of lengths associated with the IEEs
-%               starting at state i.
+%                   representing the list of lengths associated with the IEEs
+%                   starting at state i.
 %
 %
 
@@ -40,7 +42,7 @@ if nargin <= 3
 end
 
 if nargin <=4
-    MaxLen = 30;
+    MaxLen = 200;
 end
 
 
@@ -129,12 +131,20 @@ for iter = 1:NumStates
 end
 
 % Aggregate information
-IEE.ordering = V;
-IEE.spectrum = zeros(NumStates,1);
+IEE.state_ordering = V;
+IEE.state_spectrum = zeros(NumStates,1);
+IEE.distance_spectrum = zeros(d_tilde,1);
 for iter = 1:NumStates
     start_state = V(iter);
     for dist = 1:d_tilde
-        IEE.spectrum(start_state) = IEE.spectrum(start_state) + length(IEE_lengths{start_state}{dist});
+        IEE.state_spectrum(start_state) = IEE.state_spectrum(start_state) + length(IEE_lengths{start_state}{dist});
+    end
+end
+
+for dist = 1:d_tilde
+    for iter = 1:NumStates
+        start_state = V(iter);
+        IEE.distance_spectrum(dist) = IEE.distance_spectrum(dist) + length(IEE_lengths{start_state}{dist});
     end
 end
 

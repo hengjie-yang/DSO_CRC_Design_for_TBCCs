@@ -17,8 +17,9 @@
 %       2) TBP_node: a struct including the following members:
 %           (1) crc_distance: a scalar denoting the minimum undetected
 %                   distance provided by the DSO CRC.
-%           (1) spectrum: a 2^(m-1)*d_tilde matrix indicating the undetected 
-%                   spectrum for all CRC candidates over distance horizon;
+%           (1) undetected_spectrum: a 2^(m-1)*d_tilde matrix indicating the 
+%                   undetected spectrum for all CRC candidates over distance 
+%                   horizon;
 %           (2) list: a d_tilde*1 cell indicating the list of length-N TBPs
 %                   arranged in increasing distances. The true distance is
 %                   the corresponding index minus 1.
@@ -54,7 +55,7 @@ end
 load(file_name, 'IEE');
 
 
-V = IEE.ordering;
+V = IEE.state_ordering;
 NumStates = length(V);
 Temp_TBPs = cell(d_tilde, 1); % used to find TBPs at each state
 
@@ -229,7 +230,7 @@ else
 end
 
 TBP_node.crc_distance = min_dist;
-TBP_node.spectrum = Undetected_spectrum;
+TBP_node.undetected_spectrum = Undetected_spectrum;
 TBP_node.list = Valid_TBPs;
 
 % Miscellaneous: Compute total number of TBPs found
