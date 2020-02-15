@@ -1,4 +1,4 @@
- function [crc_gen_poly, TBP_node] = Search_DSO_CRC_by_Construction(code_generator, m, d_tilde, N)
+ function [crc_gen_poly, TBP_node] = Search_DSO_CRC_by_Construction(code_generator, m, d_tilde, N, base)
 
 %
 %   The function searches the distance-spectrum-optimal (DSO) CRC generator
@@ -8,10 +8,22 @@
 %       1) code_generator: a matrix specifying the generator of TBCC
 %       2) m: the degree of the objective DSO CRC generator polynomial
 %       3) d_tilde: the distance threshold
-%       4) N: the trellis length
+%       4) N: a scalar denoting the trellis length
+%       5) base: a scalar denoting the final presentation of CRCs,
+%       typically 8 or 16.
 %
 %   Outputs:
 %       1) crc_gen_poly: the DSO CRC generator polynomial in octal
+%       2) TBP_node: a struct including the following members:
+%           (1) crc_distance: a scalar denoting the minimum undetected
+%                   distance provided by the DSO CRC.
+%           (1) spectrum: a 2^(m-1)*d_tilde matrix indicating the undetected 
+%                   spectrum for all CRC candidates over distance horizon;
+%           (2) list: a d_tilde*1 cell indicating the list of length-N TBPs
+%                   arranged in increasing distances. The true distance is
+%                   the corresponding index minus 1.
+%           (3) aggregate: a scalar indicating the number of length-N TBPs
+%                   of distance less than 'd_tilde'.
 %
 %   Notes:
 %       1) Must run "Collect_Irreducible_Error_Events" first if IEEEs are
@@ -21,6 +33,10 @@
 %       
 
 %   Copyright 2020 Hengjie Yang
+
+if nargin <= 4
+    base = 8;
+end
 
 crc_gen_poly = NaN;
 TBP_node = {};
@@ -101,6 +117,9 @@ for dist=1:d_tilde
 end
 
 
+clearvars TBPs Temp_TBPs
+
+
 % % Verify if there are repetitive TBPs after building
 % HashNumber = 2^N+1; % This is the maximum number of cyclic shift
 % HashTable = zeros(HashNumber, 1);
@@ -155,12 +174,13 @@ Candidate_CRCs = dec2bin(0:2^(m-1)-1) - '0';
 Candidate_CRCs = [ones(2^(m-1),1), Candidate_CRCs, ones(2^(m-1),1)]; % degree order from highest to lowest
 Undetected_spectrum = inf(2^(m-1), 1); % each column represents the undected spectrum
 
-Candidate_poly_octal=dec2base(bin2dec(num2str(Candidate_CRCs)),8); % octal form
+Candidate_poly_octal=dec2base(bin2dec(num2str(Candidate_CRCs)),base); % octal form
 
 mask = true(size(Candidate_CRCs,1),1);
 locations = find(mask == true);
+crc_gen_poly_vec = zeros(1, m+1);
 
-flag = 0;
+
 for dist = 2:d_tilde % skip checking all-zero TBPs
     Undetected_spectrum = [Undetected_spectrum, inf(2^(m-1), 1)];
     weight_vec = zeros(size(locations, 1), 1);
@@ -178,18 +198,39 @@ for dist = 2:d_tilde % skip checking all-zero TBPs
         disp(['    Current distance: ',num2str(dist-1),' number of candidates: ',num2str(size(locations,1))]);
         if length(locations) == 1
             crc_gen_poly = Candidate_poly_octal(locations(1),:);
+            crc_gen_poly_vec = Candidate_CRCs(locations(1),:);
             break
-        end        
+        end  
+        if dist == d_tilde && length(locations) > 1
+            disp(['    d_tilde is insufficient to find the DSO CRC...']);
+        end
     end   
 end
 
+
+
+% Step 4: Identify the minimum undetected distance.
+disp('Step 4: Identify the minimum undetected distance by the DSO CRC.');
+min_dist = -1;
+if sum(crc_gen_poly_vec) == 0
+    disp('    Failed to find the DSO CRC...');
+else
+    for dist = 2:d_tilde
+        if ~isempty(Valid_TBPs{dist})
+            w = Check_divisible_by_distance(crc_gen_poly_vec, Valid_TBPs{dist});
+            if w > 0
+                min_dist = dist - 1;
+                disp(['    DSO CRC polynomial: ',num2str(crc_gen_poly)]);
+                disp(['    Minimum undetected distance: ',num2str(min_dist)]);
+                break
+            end
+        end
+    end
+end
+
+TBP_node.crc_distance = min_dist;
 TBP_node.spectrum = Undetected_spectrum;
 TBP_node.list = Valid_TBPs;
-
-
-
-
-
 
 % Miscellaneous: Compute total number of TBPs found
 aggregate = 0;
