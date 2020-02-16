@@ -78,6 +78,8 @@ for iter = 1:NumStates % find TBPs from every possible start state
     start_state = V(iter);
     List = IEE.list{start_state};
     Lengths = IEE.lengths{start_state};
+    disp(['    Current start state: ', num2str(start_state),' number of IEEs: ',...
+        num2str(IEE.state_spectrum(start_state))]);
     
     for dist = 0:d_tilde-1 % true distance
         for len = 1:N %true length
@@ -135,33 +137,30 @@ clearvars TBPs Temp_TBPs
 
 % Step 2: Build all valid TBPs through circular shift
 disp('Step 2: Build remaining TBPs through cyclic shift.');
-for iter = 1:d_tilde
+parfor iter = 1:d_tilde
     disp(['    Current distance: ',num2str(iter-1)]);
     [row, ~] = size(Valid_TBPs{iter});
     % hash table was defined here.
     
-    HashNumber = row*(N+1)*N*ceil(log2(N))+1; % maximum possible number of TBPs of dist 'iter'
-    HashTable = false(HashNumber, 1);
-    for ii = 1:size(Valid_TBPs{iter},1)
+    HashTable = containers.Map;
+    for ii  = 1:size(Valid_TBPs{iter},1)
         cur_seq = Valid_TBPs{iter}(ii,:);
-        h = ComputeHash(cur_seq, HashNumber);
-        HashTable(h) = true;
+        key_cur_seq = dec2bin(bi2de(cur_seq),N);
+        HashTable(key_cur_seq) = 1;
     end
     
     for ii = 1:row
-        cur_seq = Valid_TBPs{iter}(ii,:);
-        h_self = ComputeHash(cur_seq, HashNumber);
-%         HashTable(h_self) = 1; % mark the original sequence
+        cur_seq = Valid_TBPs{iter}(ii,:);        
         Extended_seq = [cur_seq, cur_seq]; 
         for shift = 1:N-1
             cyclic_seq = Extended_seq(1+shift:N+shift);
-            h_cyclic = ComputeHash(cyclic_seq, HashNumber);
-            if h_cyclic == h_self % termination condition for cyclic shift
+            key_cyclic_seq = dec2bin(bi2de(cyclic_seq),N);
+            if isequal(cyclic_seq, cur_seq) % termination condition for cyclic shift
                 break
             end
-            if HashTable(h_cyclic) == false
+            if ~isKey(HashTable, key_cyclic_seq)
                 Valid_TBPs{iter} = [Valid_TBPs{iter};cyclic_seq]; % find a new TBP
-                HashTable(h_cyclic) = true;
+                HashTable(key_cyclic_seq) = 1;
             end
         end
     end
@@ -186,7 +185,7 @@ for dist = 2:d_tilde % skip checking all-zero TBPs
     Undetected_spectrum = [Undetected_spectrum, inf(2^(m-1), 1)];
     weight_vec = zeros(size(locations, 1), 1);
     if ~isempty(Valid_TBPs{dist})
-        for i = 1:size(locations, 1) % This part is parallelizable
+        parfor i = 1:size(locations, 1) % This part is parallelizable
             weight_vec(i) = Check_divisible_by_distance(Candidate_CRCs(locations(i),:),Valid_TBPs{dist});
         end
         
@@ -225,6 +224,9 @@ else
                 disp(['    Minimum undetected distance: ',num2str(min_dist)]);
                 break
             end
+            if w == 0 && dist == d_tilde
+                disp('    d_tilde is insufficient to determine the minimum undetected distance.');
+            end
         end
     end
 end
@@ -260,34 +262,11 @@ for dist = 1:d_tilde
             end
         end
     end
-end
-
-
-
-
-
-
-            
-            
-        
+end       
 
 
 end
 
-
-
-
-
-function h = ComputeHash(input_sequence, HashNumber)
-h = 0;
-base = 1;
-N = size(input_sequence, 2);
-for j = 1:N
-    h = mod(h + input_sequence(j)*base, HashNumber);
-    base = mod(base*2, HashNumber);
-end
-h = h + 1; % move the starting index to 1
-end
 
 
 function weight = Check_divisible_by_distance(poly_vec,error_events)
