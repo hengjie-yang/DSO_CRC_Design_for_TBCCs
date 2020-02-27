@@ -124,6 +124,7 @@ for iter = 1:NumStates
                            end
                        end
                     end
+                    clear Column{mod(depth,2)+1}{cur_state}; % save memory
                 end
             end
         end
