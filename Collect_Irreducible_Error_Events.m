@@ -82,7 +82,10 @@ for iter = 1:NumStates
                         Column{mod(depth+1, 2)+1}{next_state} = cell(d_tilde, 1);%initialization
                     end
                     weight=sum(dec2bin(oct2dec(trellis.outputs(start_state, input)))-'0');
-                    Column{mod(depth+1,2)+1}{next_state}{weight+1} = [Column{mod(depth+1,2)+1}{next_state}{weight+1};input-1]; 
+
+                    Column{mod(depth+1,2)+1}{next_state}{weight+1} = int8(Column{mod(depth+1,2)+1}{next_state}{weight+1});% saving memory
+                    added_bit = int8(input - 1); % saving memory                  
+                    Column{mod(depth+1,2)+1}{next_state}{weight+1} = [Column{mod(depth+1,2)+1}{next_state}{weight+1};added_bit]; 
                     % we use the assumption that NumInputs=2
                 end
             end
@@ -95,10 +98,15 @@ for iter = 1:NumStates
                                 [row_dim, col_dim] = size(IEE_list{start_state}{dist});
                                 [row, col] = size(Column{mod(depth,2)+1}{cur_state}{dist});
                                 if col_dim < col
+                                    IEE_list{start_state}{dist} = int8(IEE_list{start_state}{dist}); % saving memory
                                     IEE_list{start_state}{dist} = [IEE_list{start_state}{dist}, Inf(row_dim, col-col_dim)];
                                 else
+                                    Column{mod(depth,2)+1}{cur_state}{dist} = int8(Column{mod(depth,2)+1}{cur_state}{dist});% saving memory
                                     Column{mod(depth,2)+1}{cur_state}{dist} = [Column{mod(depth,2)+1}{cur_state}{dist}, Inf(row, col_dim-col)];
                                 end
+                                IEE_list{start_state}{dist} = int8(IEE_list{start_state}{dist}); % saving memory
+                                Column{mod(depth,2)+1}{cur_state}{dist} = int8(Column{mod(depth,2)+1}{cur_state}{dist});% saving memory
+                                
                                 IEE_list{start_state}{dist} = [IEE_list{start_state}{dist}; Column{mod(depth,2)+1}{cur_state}{dist}];
                                 IEE_lengths{start_state}{dist} = [IEE_lengths{start_state}{dist}; depth*ones(row, 1)];
                             end
@@ -116,7 +124,11 @@ for iter = 1:NumStates
                                        temp = Column{mod(depth,2)+1}{cur_state}{dist};
                                        temp = [temp, (input-1)*ones(size(temp,1), 1)];
                                        if dist + weight <= d_tilde
-                                            Column{mod(depth+1,2)+1}{next_state}{dist+weight} = ...
+                                           
+                                           temp = int8(temp); % saving memory
+                                           Column{mod(depth+1,2)+1}{next_state}{dist+weight} =...
+                                               int8(Column{mod(depth+1,2)+1}{next_state}{dist+weight}); % saving memory
+                                           Column{mod(depth+1,2)+1}{next_state}{dist+weight} = ...
                                                 [Column{mod(depth+1,2)+1}{next_state}{dist+weight}; temp];
                                        end
                                    end
