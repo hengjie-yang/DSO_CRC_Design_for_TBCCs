@@ -1,4 +1,4 @@
-function IEE = Collect_Irreducible_Error_Events(constraint_length, code_generator, d_tilde, V, MaxLen)
+function IEE = Collect_Irreducible_Error_Events_ms(constraint_length, code_generator, d_tilde, V, MaxLen)
 
 % 
 %   The collection algorithm collects all irreducible error events (IEEs)
@@ -170,7 +170,7 @@ for iter = 1:size(code_generator,2)
     code_string = [code_string, num2str(code_generator(iter)), '_'];
 end
 
-save(['IEEs_CC_',code_string,'dtilde_',num2str(d_tilde),'.mat'],...
+save(['IEEs_CC_',code_string,'d_',num2str(d_tilde),'.mat'],...
     'IEE','-v7.3');
 
 
