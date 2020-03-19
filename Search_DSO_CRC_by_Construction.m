@@ -29,8 +29,8 @@
 %                   of distance less than 'd_tilde'.
 %
 %   Notes:
-%       1) Must run "Collect_Irreducible_Error_Events" first if IEEEs are
-%       not generated before
+%       1) Must run "Collect_Irreducible_Error_Events" first if IEEs are
+%       not generated before.
 %       2) The distance index equals true distance + 1, whereas the length
 %       index equals true length.
 %       
@@ -51,7 +51,7 @@ for iter = 1:size(code_generator,2)
     code_string = [code_string, num2str(code_generator(iter)), '_'];
 end
 
-file_name = ['IEEs_CC_',code_string,'dtilde_',num2str(d_tilde),'.mat'];
+file_name = ['IEEs_TBCC_',code_string,'d_',num2str(d_tilde),'.mat'];
 if ~exist(file_name, 'file')
     disp(['Error: the file ',file_name, ' does not exist!']);
     return
