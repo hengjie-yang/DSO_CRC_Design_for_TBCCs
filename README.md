@@ -73,8 +73,8 @@ Poly_node =
 ```
 This means that if have successfully found the degree-*5* DSO CRC, which is *(3D)* in hexadecimal or 
 ```
-p(x) = x^5 + x^4 + x^3 + x^2 + 1
+p(x) = x^5 + x^4 + x^3 + x^2 + 1,
 ```
-, which is of undetected minimum distance *d_crc = 8*.
+which is of undetected minimum distance *d_crc = 8*.
 
 
