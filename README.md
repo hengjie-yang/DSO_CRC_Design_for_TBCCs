@@ -81,3 +81,9 @@ p(x) = x^5 + x^4 + x^3 + x^2 + 1,
 which is of undetected minimum distance *d_crc = 8*.
 
 
+## Notes
+- Due to the exhaustive search, the time complexity of step 5 is exponential in the degree of CRC polynomial. These codes can quickly search DSO CRC polynomial, with degree up to 10, but will become noticeably slow for large degrees.
+- The design process requires an estimate on *d_tilde*. For the small DSO CRC polynomial design, *d_tilde < 3d_free* should suffice.
+
+
+
