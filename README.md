@@ -2,7 +2,7 @@
 This repository implements the algorithms proposed in ISIT 2020 submissions to design DSO CRCs for TBCCs.
 
 ## Purpose of this repository
-The objective of this repo is to find the distance-spectrum-optimal (DSO) CRC polynomial for a given tail-biting convolutional code (TBCC) of trellis length *N*. 
+The objective of this repo is to find the distance-spectrum-optimal (DSO) CRC polynomial for a given rate-*1/n* tail-biting convolutional code (TBCC) of trellis length *N*. 
 
 ### References
   1. H. Yang, L. Wang, V. Lau, and R. D. Wesel, "An Efficient Algorithm for Designing Optimal CRCs for Tail-Biting Convolutional Codes", [arXiv:2001.06029](https://arxiv.org/abs/2001.06029)
@@ -12,7 +12,7 @@ The objective of this repo is to find the distance-spectrum-optimal (DSO) CRC po
 - Step 1: Set up the following parameters:
   - *m*: the objective CRC polynomial degree
   - *v*: the constraint length of the convolutional encoder
-  - *g(x)*: the convolutional encoder represented in octal
+  - *g(x)*: the rate-*1/n* convolutional encoder represented in octal
   - *d_tilde*: the upper bound on the distance that gurantees to find the objective DSO CRC polynomial
   - *N*: the target trellis length
 
