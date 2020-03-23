@@ -9,7 +9,7 @@ function Poly_node = Search_DSO_CRC(code_generator, d_tilde, N, m, cur_poly_node
 %       1) code_generator: a matrix specifying the generator of TBCC
 %       2) d_tilde: the distance threshold
 %       3) N: a scalar denoting trellis length
-%       4) m: a scalar denoting the CRC degree
+%       4) m: a scalar denoting the CRC degree, m >= 1
 %       5) cur_poly_node: existing Poly_node found previously. See format
 %               in the Outputs
 %       6) base: a scalar denoting the final presentation of CRCs,
@@ -76,6 +76,13 @@ Candidate_CRCs = [ones(List_size,1), Candidate_CRCs, ones(2^(m-1),1)]; % degree 
 Undetected_spectrum = inf(List_size, 1); % each column represents the undected spectrum
 
 Candidate_poly_octal=dec2base(bin2dec(num2str(Candidate_CRCs)),base); % octal form
+
+if m == 1 % special case
+    Candidate_CRCs = [1 1];
+    Undetected_spectrum = inf(List_size, 1); % each column represents the undected spectrum
+    Candidate_poly_octal=dec2base(bin2dec(num2str(Candidate_CRCs)),base); % octal form
+end
+
 mask = true(size(Candidate_CRCs,1),1);
 locations = find(mask == true);
 
