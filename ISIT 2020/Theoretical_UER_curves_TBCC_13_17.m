@@ -10,7 +10,7 @@ set(groot, 'defaultLegendInterpreter','latex');
 % openfig('Plot_ISIT_2020_small_example.fig');
 
 
-SNR_dB = 0:0.25:5;
+SNR_dB = 0:0.2:5;
 SNR = 10.^(SNR_dB/10);
 
 UER_deg_6_suboptimal_TBCC_13_17 = 1*qfunc(sqrt(SNR.*7))+8*qfunc(sqrt(SNR.*11))+...

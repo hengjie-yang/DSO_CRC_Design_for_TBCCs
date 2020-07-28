@@ -54,15 +54,15 @@ for it = 1:List_size
 end
 
 % plot UER union bound
-st = 11;
+st = 16;
 
 for iter = 1:List_size
     h = semilogy(snr_dB(st:end), UER_union_bounds(iter,st:end), '-.','LineWidth',0.5);hold on
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
-semilogy(snr_dB(st:end), UER_union_bounds(2,st:end),'-o','LineWidth',2.0);hold on
-semilogy(snr_dB(st:end), UER_union_bounds(18,st:end),'-+','LineWidth',2.0);hold on
-legend('Suboptimal CRC 0x43','DSO CRC 0x63');
+semilogy
+semilogy(snr_dB(st:end), UER_union_bounds(18,st:end),'-*','LineWidth',2.0);hold on
+legend('DSO CRC at 6.4 dB');
 grid on;
 xlabel('$E_s/N_0$ (dB)','interpreter','latex');
 ylabel('Undetected Error Rate');

@@ -1,22 +1,24 @@
 %
-% This script aims at studying how the number of TB codewords of distance
-% no greater than d_tilde grows with N.
+% This script aims at studying how the number of TB codewords of length-N
+% (and of dist < d_tilde) grows with N.
 %
-% Here, we take [27, 31] as an example.
+% Here, we take [133, 171] as an example.
 %
 
-set(0,'DefaultTextFontName','Times','DefaultTextFontSize',14,...
-    'DefaultAxesFontName','Times','DefaultAxesFontSize',14,...
+set(0,'DefaultTextFontName','Times','DefaultTextFontSize',16,...
+    'DefaultAxesFontName','Times','DefaultAxesFontSize',16,...
     'DefaultLineLineWidth',1,'DefaultLineMarkerSize',7.75);
 set(groot, 'defaultAxesTickLabelInterpreter','latex'); 
 set(groot, 'defaultLegendInterpreter','latex');
 
 Ns = 1:74;
 d = 22;
-Num_codewords = zeros(1,size(Ns,2));
+Num_codewords = zeros(1,size(Ns,2)); 
+% the i-th entry stores the number of TB codewords of length i and of
+% weight less than d_tilde.
 
 polys = [];
-trellis = poly2trellis(7, [133,171]);
+trellis = poly2trellis(7, [133, 171]);
 NumStates = trellis.numStates;
 T = zeros(NumStates, NumStates);
 T = sym(T);
@@ -57,10 +59,12 @@ for iter = 1:N
 end
 
 
+%%
 
-plot(Ns, Num_codewords, '-*');
+plot(Ns, Num_codewords, '-o');
+xline(74,'--r');
 grid on
-xlabel('$N$','interpreter','latex');
+xlabel('$l$','interpreter','latex');
 ylabel('Number of TB codewords','interpreter','latex');
 
 saveas(gcf,'plot_num_codewords_TBCC_133_171_d_22_N_74');

@@ -35,7 +35,7 @@ for cur_state = 1:NumStates
     end
 end
 
-% disp(T);
+disp(T);
 
 % Step 2: Compute the weight enumerating function for finite-length TBCC
 disp('Step 2: compute the weight enumerating function for each starting state.');
@@ -49,6 +49,7 @@ for iter = 1:N
 end
 polys = diag(B);
 % disp(polys);
+disp(B);
 
 % Step 3: Compute the overall weight enumerating function for finite-length
 % TBCC
