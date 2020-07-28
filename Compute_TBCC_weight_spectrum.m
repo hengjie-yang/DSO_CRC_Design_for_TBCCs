@@ -92,8 +92,8 @@ if weight == 0
     chr = 1;
 elseif weight == 1
     chr = X;
-elseif weight == 2
-    chr = X^2;
+else
+    chr = X^weight;
 end
     
 
