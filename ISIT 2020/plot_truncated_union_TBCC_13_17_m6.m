@@ -5,7 +5,7 @@
 
 
 % Step 1: find the undetected distance spectra for all CRC candidates.
-
+clear all; clc;
 code_generator = [13, 17];
 d_tilde = 18;
 k = 64;
@@ -53,6 +53,7 @@ for it = 1:List_size
     end
 end
 
+
 % plot UER union bound
 st = 11;
 
@@ -60,8 +61,10 @@ for iter = 1:List_size
     h = semilogy(snr_dB(st:end), UER_union_bounds(iter,st:end), '-.','LineWidth',0.5);hold on
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
-semilogy(snr_dB(st:end), UER_union_bounds(2,st:end),'-o','LineWidth',2.0);hold on
-semilogy(snr_dB(st:end), UER_union_bounds(18,st:end),'-+','LineWidth',2.0);hold on
+semilogy(snr_dB(st:end), UER_union_bounds(2,st:end),'-o','LineWidth',2.0,'Color',[0.4660, 0.6740, 0.1880]);hold on
+semilogy(snr_dB(st:end), UER_union_bounds(18,st:end),'-+','LineWidth',2.0,'Color',[0.6350, 0.0780, 0.1840]);hold on
+xline(3.4,'--r');
+
 legend('Suboptimal CRC 0x43','DSO CRC 0x63');
 grid on;
 xlabel('$E_s/N_0$ (dB)','interpreter','latex');

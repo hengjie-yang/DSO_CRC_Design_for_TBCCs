@@ -1,0 +1,10 @@
+Compute the undetected distance spectrum.
+     Current distance: 6 # of undetected TBPs: 0
+     Current distance: 7 # of undetected TBPs: 0
+     Current distance: 8 # of undetected TBPs: 3
+     Current distance: 9 # of undetected TBPs: 0
+     Current distance: 10 # of undetected TBPs: 64
+     Current distance: 11 # of undetected TBPs: 0
+     Current distance: 12 # of undetected TBPs: 754
+     Current distance: 13 # of undetected TBPs: 0
+     Current distance: 14 # of undetected TBPs: 2197
