@@ -7,7 +7,8 @@ function udist = Compute_undetected_distance(code_generator, d_tilde, N, crc_pol
 %       1) code_generator: a matrix specifying the generator of TBCC
 %       2) d_tilde: the distance threshold
 %       3) N: a scalar denoting the trellis length
-%       4) crc_poly: a string represented by "base"
+%       4) crc_poly: a string represented by "base" with degree from
+%       highest to lowest
 %       5) base: the scalar denoting the base of each crc component
 %
 %   Outputs:
@@ -150,6 +151,25 @@ for dist = 2:d_tilde
             disp('    d_tilde is insufficient to determine the minimum undetected distance.');
         end
     end
+end
+
+end
+
+
+function weight = Check_divisible_by_distance(poly_vec, error_events)
+
+% This function computes the undetected weight for "poly_vec" based on "error_events".
+
+weight = 0;
+poly_vec = fliplr(poly_vec); % flip degree order from lowest to highest
+
+for i = 1:size(error_events,1)
+    [~, remd] = gfdeconv(fliplr(error_events(i,:)),poly_vec, 2); % flip input sequence degree to "lowest to highest"
+    if remd == 0
+        weight = weight + 1;
+    end
+end
+
 end
 
 

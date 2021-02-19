@@ -109,6 +109,7 @@ poly_vec = fliplr(poly_vec); % flip degree order from lowest to highest
 
 for i = 1:size(error_events,1)
     temp = double(error_events(i,:));
+    temp = fliplr(temp); % the flip input sequence degree to "lowest to highest"
     [~, remd] = gfdeconv(temp,poly_vec, 2);
     if remd == 0
         weight = weight + 1;
