@@ -1,6 +1,9 @@
 # DSO_CRC_Design_for_TBCCs
 This repository implements the algorithms proposed in ISIT 2020 submissions to design DSO CRCs for TBCCs.
 
+## Updates
+- 02-18-21: Fixed a bug in Search_DSO_CRC.m. The bug was that the previous function outputs the reversed version of the DSO CRC polynomial.
+
 ## Purpose of this repository
 The objective of this repo is to find the distance-spectrum-optimal (DSO) CRC polynomial for a given rate-*1/n* tail-biting convolutional code (TBCC) of trellis length *N*. 
 
@@ -67,16 +70,17 @@ Poly_node = Search_DSO_CRC([13, 17], 13, 15, 5)
 Finally, the command window should display the following information:
 ```
 Poly_node = 
+
   struct with fields:
 
         success_flag: 1
-       crc_gen_polys: '3D'
+       crc_gen_polys: '2F'
     stopped_distance: -1
         crc_distance: 8
 ```
-This means that if have successfully found the degree-*5* DSO CRC, which is *(3D)* in hexadecimal or 
+This means that we have successfully identified the degree-*5* DSO CRC, which is *(2F)* in hexadecimal or 
 ```
-p(x) = x^5 + x^4 + x^3 + x^2 + 1,
+p(x) = x^5 + x^3 + x^2 + x + 1,
 ```
 which is of undetected minimum distance *d_crc = 8*.
 
