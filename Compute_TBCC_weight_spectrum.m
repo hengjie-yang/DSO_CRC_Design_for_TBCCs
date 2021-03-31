@@ -9,8 +9,8 @@ function weight_node = Compute_TBCC_weight_spectrum(constraint_length, code_gene
 %       3) N: a scalar denoting the trellis depth (Note this is NOT the blocklength)
 %
 %   Outputs: weight_node, a struct that includes
-%       1) weight_spectrum: a d_max-by-1 column vector denoting the #
-%           codewords of weight i.
+%       1) weight_spectrum: a (d_max+1)-by-1 column vector denoting the #
+%           codewords of weight i. Index 'i' represents weight 'i-1'.
 %       2) overall_weight_function: a polynomial representation of WEF
 %       3) weight_function_per_state: the WEF that starts and ends at a
 %           given state.
