@@ -8,14 +8,16 @@ function weight_node = Compute_TBCC_weight_spectrum(constraint_length, code_gene
 %       2) code_generator: a matrix describing the CC generator
 %       3) N: a scalar denoting the trellis depth (Note this is NOT the blocklength)
 %
-%   Outputs:
-%       1)polys: a 2^v*1 symbolic vector, with the i-th entry denoting the
-%       weight enumrating function of TBCC that starts at state i and end
-%       at state i. i=1,2,...2^v, where v denotes the number of memory
-%       elements.
+%   Outputs: weight_node, a struct that includes
+%       1) weight_spectrum: a d_max-by-1 column vector denoting the #
+%           codewords of weight i.
+%       2) overall_weight_function: a polynomial representation of WEF
+%       3) weight_function_per_state: the WEF that starts and ends at a
+%           given state.
 %
-
+%
 %   Copyright 2020 Hengjie Yang
+
 polys = [];
 trellis = poly2trellis(constraint_length, code_generator);
 NumStates = trellis.numStates;
