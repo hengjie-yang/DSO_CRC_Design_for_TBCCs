@@ -9,7 +9,7 @@ function udist = Compute_undetected_distance(code_generator, d_tilde, N, crc_pol
 %       3) N: a scalar denoting the trellis length
 %       4) crc_poly: a string represented by "base" with degree from
 %       highest to lowest
-%       5) base: the scalar denoting the base of each crc component
+%       5) base: the scalar denoting the base of each CRC component
 %
 %   Outputs:
 %       1) udist: a scalar denoting the undetected distance
